@@ -12,7 +12,15 @@
 					"name": "aqsjson"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "aqs_dailydata_clean",
+						"type": "DatasetReference"
+					},
+					"name": "sinktoaqsclean"
+				}
+			],
 			"transformations": [
 				{
 					"name": "flattenjson"
@@ -39,7 +47,11 @@
 				"          arithmetic_mean = Data.arithmetic_mean",
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flattenjson"
+				"     skipDuplicateMapOutputs: false) ~> flattenjson",
+				"flattenjson sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
 			]
 		}
 	}
