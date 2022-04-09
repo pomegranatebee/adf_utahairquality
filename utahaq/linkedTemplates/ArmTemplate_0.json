@@ -68,6 +68,49 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_clean')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "utahaq_blob_output",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pollutants": {
+						"type": "string"
+					},
+					"datestart": {
+						"type": "string"
+					},
+					"dateend": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+							"type": "Expression"
+						},
+						"folderPath": "dailydata",
+						"container": "aqsclean"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_input')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -171,46 +214,6 @@
 						"type": "String"
 					}
 				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_clean')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "utahaq_blob_output",
-					"type": "LinkedServiceReference"
-				},
-				"parameters": {
-					"pollutants": {
-						"type": "string"
-					},
-					"datestart": {
-						"type": "string"
-					},
-					"dateend": {
-						"type": "string"
-					}
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
-						"folderPath": "dailydata",
-						"container": "aqsclean"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
@@ -344,7 +347,14 @@
 								{
 									"name": "Transform JSON to CSV and copy to aqsclean",
 									"type": "Copy",
-									"dependsOn": [],
+									"dependsOn": [
+										{
+											"activity": "Copy raw JSON to aqsraw",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
 									"policy": {
 										"timeout": "7.00:00:00",
 										"retry": 0,
@@ -355,12 +365,14 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "RestSource",
-											"httpRequestTimeout": "00:01:40",
-											"requestInterval": "00.00:00:00.010",
-											"requestMethod": "GET",
-											"paginationRules": {
-												"supportRFC5988": "true"
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
 											}
 										},
 										"sink": {
@@ -536,7 +548,7 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "aqs_dailydata_input",
+											"referenceName": "aqs_dailydata_raw",
 											"type": "DatasetReference",
 											"parameters": {
 												"pollutants": "@item().pollutant_id",
