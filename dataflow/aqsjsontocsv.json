@@ -1,0 +1,46 @@
+{
+	"name": "aqsjsontocsv",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "utahaq_blob_output",
+						"type": "LinkedServiceReference"
+					},
+					"name": "aqsjson"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "flattenjson"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Data as (aqi as short, arithmetic_mean as double, cbsa as string, cbsa_code as integer, city as string, county as string, county_code as short, date_local as date, date_of_last_change as date, datum as string, event_type as string, first_max_hour as short, first_max_value as double, latitude as double, local_site_name as string, longitude as double, method as string, method_code as short, observation_count as short, observation_percent as double, parameter as string, parameter_code as integer, poc as short, pollutant_standard as string, sample_duration as string, sample_duration_code as string, site_address as string, site_number as short, state as string, state_code as short, units_of_measure as string, validity_indicator as boolean)[],",
+				"          Header as (request_time as string, rows as short, status as string, url as string)[]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'json',",
+				"     container: 'aqsraw',",
+				"     folderPath: 'dailydata',",
+				"     fileName: '42101_20211201_20211202.json',",
+				"     documentForm: 'documentPerLine') ~> aqsjson",
+				"aqsjson foldDown(unroll(Data),",
+				"     mapColumn(",
+				"          date = Data.date_local,",
+				"          site_number = Data.site_number,",
+				"          parameter_code = Data.parameter_code,",
+				"          arithmetic_mean = Data.arithmetic_mean",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenjson"
+			]
+		}
+	}
+}
