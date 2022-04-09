@@ -383,7 +383,8 @@
 														"path": "$['Data'][0]['state_code']"
 													},
 													"sink": {
-														"name": "state_code"
+														"name": "state_code",
+														"type": "String"
 													}
 												},
 												{
@@ -391,7 +392,8 @@
 														"path": "$['Data'][0]['county_code']"
 													},
 													"sink": {
-														"name": "county_code"
+														"name": "county_code",
+														"type": "String"
 													}
 												},
 												{
@@ -399,7 +401,8 @@
 														"path": "$['Data'][0]['site_number']"
 													},
 													"sink": {
-														"name": "site_number"
+														"name": "site_number",
+														"type": "String"
 													}
 												},
 												{
@@ -407,7 +410,8 @@
 														"path": "$['Data'][0]['parameter_code']"
 													},
 													"sink": {
-														"name": "parameter_code"
+														"name": "parameter_code",
+														"type": "String"
 													}
 												},
 												{
@@ -415,7 +419,8 @@
 														"path": "$['Data'][0]['latitude']"
 													},
 													"sink": {
-														"name": "latitude"
+														"name": "latitude",
+														"type": "Decimal"
 													}
 												},
 												{
@@ -423,7 +428,8 @@
 														"path": "$['Data'][0]['longitude']"
 													},
 													"sink": {
-														"name": "longitude"
+														"name": "longitude",
+														"type": "Decimal"
 													}
 												},
 												{
@@ -431,7 +437,8 @@
 														"path": "$['Data'][0]['sample_duration_code']"
 													},
 													"sink": {
-														"name": "sample_duration_code"
+														"name": "sample_duration_code",
+														"type": "String"
 													}
 												},
 												{
@@ -439,7 +446,8 @@
 														"path": "$['Data'][0]['pollutant_standard']"
 													},
 													"sink": {
-														"name": "pollutant_standard"
+														"name": "pollutant_standard",
+														"type": "String"
 													}
 												},
 												{
@@ -447,7 +455,8 @@
 														"path": "$['Data'][0]['date_local']"
 													},
 													"sink": {
-														"name": "date_local"
+														"name": "date_local",
+														"type": "DateTime"
 													}
 												},
 												{
@@ -455,7 +464,8 @@
 														"path": "$['Data'][0]['observation_count']"
 													},
 													"sink": {
-														"name": "observation_count"
+														"name": "observation_count",
+														"type": "Int64"
 													}
 												},
 												{
@@ -463,7 +473,8 @@
 														"path": "$['Data'][0]['validity_indicator']"
 													},
 													"sink": {
-														"name": "validity_indicator"
+														"name": "validity_indicator",
+														"type": "String"
 													}
 												},
 												{
@@ -471,7 +482,8 @@
 														"path": "$['Data'][0]['arithmetic_mean']"
 													},
 													"sink": {
-														"name": "arithmetic_mean"
+														"name": "arithmetic_mean",
+														"type": "Decimal"
 													}
 												},
 												{
@@ -479,7 +491,8 @@
 														"path": "$['Data'][0]['first_max_value']"
 													},
 													"sink": {
-														"name": "first_max_value"
+														"name": "first_max_value",
+														"type": "Decimal"
 													}
 												},
 												{
@@ -487,7 +500,8 @@
 														"path": "$['Data'][0]['first_max_hour']"
 													},
 													"sink": {
-														"name": "first_max_hour"
+														"name": "first_max_hour",
+														"type": "Int64"
 													}
 												},
 												{
@@ -495,7 +509,8 @@
 														"path": "$['Data'][0]['aqi']"
 													},
 													"sink": {
-														"name": "aqi"
+														"name": "aqi",
+														"type": "Int64"
 													}
 												},
 												{
@@ -503,7 +518,8 @@
 														"path": "$['Data'][0]['method_code']"
 													},
 													"sink": {
-														"name": "method_code"
+														"name": "method_code",
+														"type": "String"
 													}
 												},
 												{
@@ -511,7 +527,8 @@
 														"path": "$['Data'][0]['date_of_last_change']"
 													},
 													"sink": {
-														"name": "date_of_last_change"
+														"name": "date_of_last_change",
+														"type": "DateTime"
 													}
 												}
 											]
