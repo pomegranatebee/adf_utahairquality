@@ -10,10 +10,6 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": {
-					"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
-					"type": "Expression"
-				},
 				"folderPath": "dailydata",
 				"container": "aqsclean"
 			},
