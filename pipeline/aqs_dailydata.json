@@ -123,7 +123,14 @@
 						{
 							"name": "Transform JSON to CSV and copy to aqsclean",
 							"type": "Copy",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Copy raw JSON to aqsraw",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "7.00:00:00",
 								"retry": 0,
@@ -134,12 +141,14 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "RestSource",
-									"httpRequestTimeout": "00:01:40",
-									"requestInterval": "00.00:00:00.010",
-									"requestMethod": "GET",
-									"paginationRules": {
-										"supportRFC5988": "true"
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "AzureBlobStorageReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
 									}
 								},
 								"sink": {
@@ -315,7 +324,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "aqs_dailydata_input",
+									"referenceName": "aqs_dailydata_raw",
 									"type": "DatasetReference",
 									"parameters": {
 										"pollutants": "@item().pollutant_id",
