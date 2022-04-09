@@ -5,23 +5,15 @@
 			"referenceName": "utahaq_blob_output",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"pollutants": {
-				"type": "string"
-			},
-			"datestart": {
-				"type": "string"
-			},
-			"dateend": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+				"fileName": {
+					"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+					"type": "Expression"
+				},
 				"folderPath": "dailydata",
 				"container": "aqsclean"
 			},
