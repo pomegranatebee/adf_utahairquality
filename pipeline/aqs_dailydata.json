@@ -306,7 +306,8 @@
 												"path": "$['Data'][0]['date_of_last_change']"
 											},
 											"sink": {
-												"name": "date_of_last_change"
+												"name": "date_of_last_change",
+												"type": "DateTime"
 											}
 										}
 									]
