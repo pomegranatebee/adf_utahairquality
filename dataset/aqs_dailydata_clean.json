@@ -1,5 +1,5 @@
 {
-	"name": "aqs_dailydata_raw",
+	"name": "aqs_dailydata_clean",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "utahaq_blob_output",
@@ -17,22 +17,19 @@
 			}
 		},
 		"annotations": [],
-		"type": "Json",
+		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": {
-					"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.json')",
-					"type": "Expression"
-				},
-				"folderPath": {
-					"value": "dailydata",
-					"type": "Expression"
-				},
-				"container": "aqsraw"
-			}
+				"fileName": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+				"folderPath": "dailydata",
+				"container": "aqsclean"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
 		},
-		"schema": {}
-	},
-	"type": "Microsoft.DataFactory/factories/datasets"
+		"schema": []
+	}
 }
