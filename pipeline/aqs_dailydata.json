@@ -119,6 +119,50 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "Copy raw JSON to aqsraw",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "aqsjsontocsv_copy1",
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"aqsjson": {
+											"pollutants": "@item().pollutant_id",
+											"datestart": {
+												"value": "@variables('datestart')",
+												"type": "Expression"
+											},
+											"dateend": {
+												"value": "@variables('dateend')",
+												"type": "Expression"
+											}
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
 						}
 					]
 				}
