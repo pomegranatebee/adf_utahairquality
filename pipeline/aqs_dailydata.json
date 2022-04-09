@@ -121,11 +121,42 @@
 							]
 						},
 						{
-							"name": "Transform JSON to CSV and copy to aqsclean",
-							"type": "Copy",
+							"name": "jsontocsv",
+							"type": "ExecuteDataFlow",
 							"dependsOn": [
 								{
 									"activity": "Copy raw JSON to aqsraw",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "aqsjsontocsv",
+									"type": "DataFlowReference"
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
+						},
+						{
+							"name": "Copy unraveled JSON to aqsclean",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "jsontocsv",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -162,32 +193,7 @@
 										"fileExtension": ".txt"
 									}
 								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"mappings": [
-										{
-											"source": {
-												"path": "$['Data'][0]['date_local']"
-											},
-											"sink": {
-												"name": "date_local",
-												"type": "DateTime"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Data'][0]['arithmetic_mean']"
-											},
-											"sink": {
-												"name": "arithmetic_mean",
-												"type": "Decimal"
-											}
-										}
-									],
-									"collectionReference": "",
-									"mapComplexValuesToString": false
-								}
+								"enableStaging": false
 							},
 							"inputs": [
 								{
