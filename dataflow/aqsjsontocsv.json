@@ -37,7 +37,6 @@
 				"     format: 'json',",
 				"     container: 'aqsraw',",
 				"     folderPath: 'dailydata',",
-				"     fileName: '42101_20211201_20211202.json',",
 				"     documentForm: 'documentPerLine') ~> aqsjson",
 				"aqsjson foldDown(unroll(Data),",
 				"     mapColumn(",
