@@ -82,7 +82,7 @@
 							"isSequential": true,
 							"activities": [
 								{
-									"name": "Copy AQS to blob",
+									"name": "Copy raw JSON to aqsraw",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -133,7 +133,218 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "aqs_dailydata_output",
+											"referenceName": "aqs_dailydata_raw",
+											"type": "DatasetReference",
+											"parameters": {
+												"pollutants": "@item().pollutant_id",
+												"datestart": {
+													"value": "@variables('datestart')",
+													"type": "Expression"
+												},
+												"dateend": {
+													"value": "@variables('dateend')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Transform JSON to CSV and copy to aqsclean",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"paginationRules": {
+												"supportRFC5988": "true"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"path": "$['Data'][0]['state_code']"
+													},
+													"sink": {
+														"name": "state_code"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['county_code']"
+													},
+													"sink": {
+														"name": "county_code"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['site_number']"
+													},
+													"sink": {
+														"name": "site_number"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['parameter_code']"
+													},
+													"sink": {
+														"name": "parameter_code"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['latitude']"
+													},
+													"sink": {
+														"name": "latitude"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['longitude']"
+													},
+													"sink": {
+														"name": "longitude"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['sample_duration_code']"
+													},
+													"sink": {
+														"name": "sample_duration_code"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['pollutant_standard']"
+													},
+													"sink": {
+														"name": "pollutant_standard"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['date_local']"
+													},
+													"sink": {
+														"name": "date_local"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['observation_count']"
+													},
+													"sink": {
+														"name": "observation_count"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['validity_indicator']"
+													},
+													"sink": {
+														"name": "validity_indicator"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['arithmetic_mean']"
+													},
+													"sink": {
+														"name": "arithmetic_mean"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['first_max_value']"
+													},
+													"sink": {
+														"name": "first_max_value"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['first_max_hour']"
+													},
+													"sink": {
+														"name": "first_max_hour"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['aqi']"
+													},
+													"sink": {
+														"name": "aqi"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['method_code']"
+													},
+													"sink": {
+														"name": "method_code"
+													}
+												},
+												{
+													"source": {
+														"path": "$['Data'][0]['date_of_last_change']"
+													},
+													"sink": {
+														"name": "date_of_last_change"
+													}
+												}
+											]
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "aqs_dailydata_input",
+											"type": "DatasetReference",
+											"parameters": {
+												"pollutants": "@item().pollutant_id",
+												"datestart": {
+													"value": "@variables('datestart')",
+													"type": "Expression"
+												},
+												"dateend": {
+													"value": "@variables('dateend')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "aqs_dailydata_clean",
 											"type": "DatasetReference",
 											"parameters": {
 												"pollutants": "@item().pollutant_id",
@@ -173,7 +384,8 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/pollutants')]",
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_input')]",
-				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_output')]"
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_clean')]"
 			]
 		},
 		{
@@ -211,7 +423,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_output')]",
+			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_raw')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -327,6 +539,46 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_clean')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "utahaq_blob_output",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pollutants": {
+						"type": "string"
+					},
+					"datestart": {
+						"type": "string"
+					},
+					"dateend": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+						"folderPath": "dailydata",
+						"container": "aqsclean"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
 		}
 	]
 }
