@@ -1,0 +1,329 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "utahaq"
+		},
+		"utahaq_blob_output_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'utahaq_blob_output'"
+		},
+		"aqs_test_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/byState?email=test@aqs.api&key=test&param=45201&bdate=19950515&edate=19950515&state=37"
+		},
+		"epa_aqs_dailydata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/aqs_test')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "pollutants",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "pollutants",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "for_each_pollutant",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "pollutants",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('pollutants').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy AQS to blob",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "RestSource",
+											"httpRequestTimeout": "00:01:40",
+											"requestInterval": "00.00:00:00.010",
+											"requestMethod": "GET",
+											"paginationRules": {
+												"supportRFC5988": "true"
+											}
+										},
+										"sink": {
+											"type": "JsonSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings"
+											},
+											"formatSettings": {
+												"type": "JsonWriteSettings"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "aqs_dailydata_input_test",
+											"type": "DatasetReference",
+											"parameters": {
+												"pollutants": "@item().pollutant_id",
+												"datestart": {
+													"value": "@variables('datestart')",
+													"type": "Expression"
+												},
+												"dateend": {
+													"value": "@variables('dateend')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "aqs_dailydata_output_test",
+											"type": "DatasetReference",
+											"parameters": {
+												"pollutants": "@item().pollutant_id",
+												"datestart": "@variables('datestart')",
+												"dateend": {
+													"value": "@variables('dateend')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"datestart": {
+						"type": "String",
+						"defaultValue": "20211201"
+					},
+					"dateend": {
+						"type": "String",
+						"defaultValue": "20211202"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-04-09T17:39:19Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/pollutants')]",
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_input_test')]",
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_output_test')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_input_test')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "epa_aqs_dailydata",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pollutants": {
+						"type": "string"
+					},
+					"datestart": {
+						"type": "string"
+					},
+					"dateend": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "RestResource",
+				"typeProperties": {
+					"relativeUrl": {
+						"value": "@concat('https://aqs.epa.gov/data/api/dailyData/byState?email=ckirsch@rideuta.com&key=tealcat22&param=', dataset().pollutants,'&bdate=',dataset().datestart,'&edate=',dataset().dateend,'&state=49')",
+						"type": "Expression"
+					}
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/epa_aqs_dailydata')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aqs_dailydata_output_test')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "utahaq_blob_output",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"pollutants": {
+						"type": "string"
+					},
+					"datestart": {
+						"type": "string"
+					},
+					"dateend": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.json')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "dailydata",
+							"type": "Expression"
+						},
+						"container": "aqstest"
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pollutants')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "utahaq_blob_output",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "pollutants.csv",
+						"container": "aqsparam"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "pollutant_id",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aqs_test')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('aqs_test_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/epa_aqs_dailydata')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('epa_aqs_dailydata_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/utahaq_blob_output')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('utahaq_blob_output_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

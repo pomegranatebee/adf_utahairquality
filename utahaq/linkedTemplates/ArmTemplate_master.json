@@ -1,0 +1,63 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "utahaq"
+		},
+		"utahaq_blob_output_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'utahaq_blob_output'"
+		},
+		"aqs_test_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/byState?email=test@aqs.api&key=test&param=45201&bdate=19950515&edate=19950515&state=37"
+		},
+		"epa_aqs_dailydata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "utahaq_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"utahaq_blob_output_connectionString": {
+						"value": "[parameters('utahaq_blob_output_connectionString')]"
+					},
+					"aqs_test_properties_typeProperties_url": {
+						"value": "[parameters('aqs_test_properties_typeProperties_url')]"
+					},
+					"epa_aqs_dailydata_properties_typeProperties_url": {
+						"value": "[parameters('epa_aqs_dailydata_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
