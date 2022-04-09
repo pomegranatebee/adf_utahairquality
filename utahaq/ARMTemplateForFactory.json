@@ -185,8 +185,19 @@
 														"type": "Expression"
 													}
 												},
-												"sinktoaqsclean": {}
-											}
+												"sinktoaqsclean": {
+													"pollutants": "@item().pollutant_id",
+													"datestart": {
+														"value": "@variables('datestart')",
+														"type": "Expression"
+													},
+													"dateend": {
+														"value": "@variables('dateend')",
+														"type": "Expression"
+													}
+												}
+											},
+											"linkedServiceParameters": {}
 										},
 										"staging": {},
 										"integrationRuntime": {
@@ -237,11 +248,26 @@
 					"referenceName": "utahaq_blob_output",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"pollutants": {
+						"type": "string"
+					},
+					"datestart": {
+						"type": "string"
+					},
+					"dateend": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"fileName": {
+							"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.csv')",
+							"type": "Expression"
+						},
 						"folderPath": "dailydata",
 						"container": "aqsclean"
 					},
