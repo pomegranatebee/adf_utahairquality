@@ -1,0 +1,38 @@
+{
+	"name": "aqs_dailydata_output",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "utahaq_blob_output",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"pollutants": {
+				"type": "string"
+			},
+			"datestart": {
+				"type": "string"
+			},
+			"dateend": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@concat(dataset().pollutants,'_',dataset().datestart,'_',dataset().dateend,'.json')",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "dailydata",
+					"type": "Expression"
+				},
+				"container": "aqstest"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
