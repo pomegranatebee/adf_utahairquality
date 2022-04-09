@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "aqsjsontocsv",
+						"referenceName": "aqsjsontocsv_copy1",
 						"type": "DataFlowReference"
 					},
 					"compute": {
