@@ -220,6 +220,70 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/aqsjsontocsv')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "utahaq_blob_output",
+								"type": "LinkedServiceReference"
+							},
+							"name": "aqsjson"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "aqs_dailydata_clean",
+								"type": "DatasetReference"
+							},
+							"name": "sinktoaqsclean"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flattenjson"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Data as (aqi as short, arithmetic_mean as double, cbsa as string, cbsa_code as integer, city as string, county as string, county_code as short, date_local as date, date_of_last_change as date, datum as string, event_type as string, first_max_hour as short, first_max_value as double, latitude as double, local_site_name as string, longitude as double, method as string, method_code as short, observation_count as short, observation_percent as double, parameter as string, parameter_code as integer, poc as short, pollutant_standard as string, sample_duration as string, sample_duration_code as string, site_address as string, site_number as short, state as string, state_code as short, units_of_measure as string, validity_indicator as boolean)[],",
+						"          Header as (request_time as string, rows as short, status as string, url as string)[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'json',",
+						"     container: 'aqsraw',",
+						"     folderPath: 'dailydata',",
+						"     fileName: '42101_20211201_20211202.json',",
+						"     documentForm: 'documentPerLine') ~> aqsjson",
+						"aqsjson foldDown(unroll(Data),",
+						"     mapColumn(",
+						"          date = Data.date_local,",
+						"          site_number = Data.site_number,",
+						"          parameter_code = Data.parameter_code,",
+						"          arithmetic_mean = Data.arithmetic_mean",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenjson",
+						"flattenjson sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]",
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_clean')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/aqs_dailydata')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -345,11 +409,59 @@
 									]
 								},
 								{
-									"name": "Transform JSON to CSV and copy to aqsclean",
-									"type": "Copy",
+									"name": "jsontocsv",
+									"type": "ExecuteDataFlow",
 									"dependsOn": [
 										{
 											"activity": "Copy raw JSON to aqsraw",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "aqsjsontocsv",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"aqsjson": {},
+												"sinktoaqsclean": {
+													"pollutants": "@item().pollutant_id",
+													"datestart": {
+														"value": "@variables('datestart')",
+														"type": "Expression"
+													},
+													"dateend": {
+														"value": "@variables('dateend')",
+														"type": "Expression"
+													}
+												}
+											},
+											"linkedServiceParameters": {}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								},
+								{
+									"name": "Copy unraveled JSON to aqsclean",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "jsontocsv",
 											"dependencyConditions": [
 												"Succeeded"
 											]
@@ -386,32 +498,7 @@
 												"fileExtension": ".txt"
 											}
 										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"mappings": [
-												{
-													"source": {
-														"path": "$['Data'][0]['date_local']"
-													},
-													"sink": {
-														"name": "date_local",
-														"type": "DateTime"
-													}
-												},
-												{
-													"source": {
-														"path": "$['Data'][0]['arithmetic_mean']"
-													},
-													"sink": {
-														"name": "arithmetic_mean",
-														"type": "Decimal"
-													}
-												}
-											],
-											"collectionReference": "",
-											"mapComplexValuesToString": false
-										}
+										"enableStaging": false
 									},
 									"inputs": [
 										{
@@ -473,6 +560,7 @@
 				"[concat(variables('factoryId'), '/datasets/pollutants')]",
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_input')]",
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
+				"[concat(variables('factoryId'), '/dataflows/aqsjsontocsv')]",
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_clean')]"
 			]
 		}
