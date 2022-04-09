@@ -121,7 +121,7 @@
 							]
 						},
 						{
-							"name": "Data flow1",
+							"name": "Transform JSON to CSV and copy to aqsclean",
 							"type": "ExecuteDataFlow",
 							"dependsOn": [
 								{
@@ -141,7 +141,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"dataflow": {
-									"referenceName": "aqsjsontocsv_copy1",
+									"referenceName": "aqsjsontocsv",
 									"type": "DataFlowReference",
 									"datasetParameters": {
 										"aqsjson": {
@@ -157,9 +157,9 @@
 										}
 									}
 								},
-								"compute": {
-									"coreCount": 8,
-									"computeType": "General"
+								"integrationRuntime": {
+									"referenceName": "HigherTTL",
+									"type": "IntegrationRuntimeReference"
 								},
 								"traceLevel": "Fine"
 							}

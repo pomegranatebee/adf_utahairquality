@@ -1,5 +1,5 @@
 {
-	"name": "aqsjsontocsv_copy1",
+	"name": "aqsjsontocsv",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
