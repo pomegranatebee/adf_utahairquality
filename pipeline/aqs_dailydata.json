@@ -142,7 +142,20 @@
 							"typeProperties": {
 								"dataflow": {
 									"referenceName": "aqsjsontocsv",
-									"type": "DataFlowReference"
+									"type": "DataFlowReference",
+									"datasetParameters": {
+										"sinktoaqsclean": {
+											"pollutants": "@item().pollutant_id",
+											"datestart": {
+												"value": "@variables('datestart')",
+												"type": "Expression"
+											},
+											"dateend": {
+												"value": "@variables('dateend')",
+												"type": "Expression"
+											}
+										}
+									}
 								},
 								"compute": {
 									"coreCount": 8,
