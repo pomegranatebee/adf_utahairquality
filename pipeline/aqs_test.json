@@ -1,0 +1,138 @@
+{
+	"name": "aqs_test",
+	"properties": {
+		"activities": [
+			{
+				"name": "pollutants",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "pollutants",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "for_each_pollutant",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "pollutants",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('pollutants').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Copy AQS to blob",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "RestSource",
+									"httpRequestTimeout": "00:01:40",
+									"requestInterval": "00.00:00:00.010",
+									"requestMethod": "GET",
+									"paginationRules": {
+										"supportRFC5988": "true"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobStorageWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "aqs_dailydata_input_test",
+									"type": "DatasetReference",
+									"parameters": {
+										"pollutants": "@item().pollutant_id",
+										"datestart": {
+											"value": "@variables('datestart')",
+											"type": "Expression"
+										},
+										"dateend": {
+											"value": "@variables('dateend')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "aqs_dailydata_output_test",
+									"type": "DatasetReference",
+									"parameters": {
+										"pollutants": "@item().pollutant_id",
+										"datestart": "@variables('datestart')",
+										"dateend": {
+											"value": "@variables('dateend')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"datestart": {
+				"type": "String",
+				"defaultValue": "20211201"
+			},
+			"dateend": {
+				"type": "String",
+				"defaultValue": "20211202"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-04-09T17:39:19Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

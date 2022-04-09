@@ -1,0 +1,9 @@
+{
+	"name": "utahaq",
+	"location": "westus2",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "f29554e1-2c71-4b03-83ec-ac3d89a2b860",
+		"tenantId": "98ab746e-f2ce-45b2-8031-0b4109537794"
+	}
+}
