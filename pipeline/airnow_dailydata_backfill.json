@@ -531,8 +531,8 @@
 									"referenceName": "airnowtocsv",
 									"type": "DataFlowReference",
 									"parameters": {
-										"year": {
-											"value": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
+										"date": {
+											"value": "'@{formatDateTime(item(),'yyyyMMdd')}'",
 											"type": "Expression"
 										}
 									},
