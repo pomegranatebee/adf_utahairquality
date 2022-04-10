@@ -184,11 +184,11 @@
 		"variables": {
 			"datestart": {
 				"type": "String",
-				"defaultValue": "20030101"
+				"defaultValue": "20020101"
 			},
 			"dateend": {
 				"type": "String",
-				"defaultValue": "20031231"
+				"defaultValue": "20021231"
 			}
 		},
 		"annotations": [],
