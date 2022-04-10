@@ -273,7 +273,7 @@
 				}
 			},
 			{
-				"name": "ForEach1",
+				"name": "For each date",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -486,11 +486,11 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"year": {
-											"value": "@substring(formatDateTime(variables('datestart'),'yyyyMMdd'),0,4)",
+											"value": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
 											"type": "Expression"
 										},
 										"date": {
-											"value": "@formatDateTime(variables('datestart'),'yyyyMMdd')",
+											"value": "@formatDateTime(item(),'yyyyMMdd')",
 											"type": "Expression"
 										}
 									}
