@@ -233,7 +233,7 @@
 				"typeProperties": {
 					"variableName": "today",
 					"value": {
-						"value": "@formatDateTime(convertFromUtc(utcNow(), 'Pacific Standard Time'),'yyyyMMdd')",
+						"value": "@formatDateTime(convertFromUtc(utcNow(), 'Mountain Standard Time'),'yyyyMMdd')",
 						"type": "Expression"
 					}
 				}
