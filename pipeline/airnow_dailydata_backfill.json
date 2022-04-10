@@ -506,6 +506,49 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Data flow1",
+							"type": "ExecuteDataFlow",
+							"dependsOn": [
+								{
+									"activity": "Copy raw DAT file to airnowraw_copy1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "1.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataflow": {
+									"referenceName": "airnowtocsv",
+									"type": "DataFlowReference",
+									"parameters": {
+										"year": {
+											"value": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
+											"type": "Expression"
+										}
+									},
+									"datasetParameters": {
+										"AirNowRaw": {
+											"year": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
+											"date": "@formatDateTime(item(),'yyyyMMdd')"
+										}
+									}
+								},
+								"compute": {
+									"coreCount": 8,
+									"computeType": "General"
+								},
+								"traceLevel": "Fine"
+							}
 						}
 					]
 				}
