@@ -51,9 +51,8 @@
 				"          method_id = Data.method_code,",
 				"          observation_count = Data.observation_count,",
 				"          pollutant_standard = Data.pollutant_standard,",
-				"          pollutant_result_avg = Data.arithmetic_mean,",
-				"          pollutant_result_max = Data.first_max_value,",
-				"          pollutant_aqi_avg = Data.aqi,",
+				"          pollutant_result = Data.arithmetic_mean,",
+				"          pollutant_aqi = Data.aqi,",
 				"          latitude = Data.latitude,",
 				"          longitude = Data.longitude,",
 				"          validity_indicator = Data.validity_indicator",
@@ -69,7 +68,7 @@
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: false,",
+				"     columnNamesAsHeader: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
 			]
