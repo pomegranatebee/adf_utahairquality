@@ -188,7 +188,7 @@
 			},
 			"dateend": {
 				"type": "String",
-				"defaultValue": "20211202"
+				"defaultValue": "20211231"
 			}
 		},
 		"annotations": [],
