@@ -219,8 +219,8 @@
 						"referenceName": "airnow_dailydata_raw",
 						"type": "DatasetReference",
 						"parameters": {
-							"year": "2022",
-							"date": "20220331"
+							"year": "@substring(variables('today'),0,4)",
+							"date": "@variables('today')"
 						}
 					}
 				]
@@ -233,7 +233,7 @@
 				"typeProperties": {
 					"variableName": "today",
 					"value": {
-						"value": "@formatDateTime(convertFromUtc(utcnow(), 'Mountain Time'),'yyyyddMM')",
+						"value": "@formatDateTime(convertFromUtc(utcNow(), 'Pacific Standard Time'),'yyyyMMdd')",
 						"type": "Expression"
 					}
 				}
