@@ -307,7 +307,7 @@
 						"     validateSchema: false,",
 						"     format: 'delimited',",
 						"     container: 'aqsclean',",
-						"     folderPath: (concat($year,'_',$pollutant)),",
+						"     folderPath: (concat($pollutant,'_',$year)),",
 						"     truncate: true,",
 						"     columnDelimiter: ',',",
 						"     escapeChar: '\\\\',",
@@ -522,7 +522,7 @@
 					},
 					"dateend": {
 						"type": "String",
-						"defaultValue": "20211202"
+						"defaultValue": "20211231"
 					}
 				},
 				"annotations": [],
