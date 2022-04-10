@@ -204,11 +204,11 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"year": {
-								"value": "@substring(variables('today'),0,4)",
+								"value": "@substring(variables('datestart'),0,4)",
 								"type": "Expression"
 							},
 							"date": {
-								"value": "@variables('today')",
+								"value": "@variables('datestart')",
 								"type": "Expression"
 							}
 						}
@@ -219,8 +219,8 @@
 						"referenceName": "airnow_dailydata_raw",
 						"type": "DatasetReference",
 						"parameters": {
-							"year": "@substring(variables('today'),0,4)",
-							"date": "@variables('today')"
+							"year": "@substring(variables('datestart'),0,4)",
+							"date": "@variables('datestart')"
 						}
 					}
 				]
@@ -231,7 +231,7 @@
 				"dependsOn": [],
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "today",
+					"variableName": "datestart",
 					"value": {
 						"value": "@formatDateTime(convertFromUtc(utcNow(), 'Mountain Standard Time'),'yyyyMMdd')",
 						"type": "Expression"
@@ -246,7 +246,7 @@
 			}
 		},
 		"variables": {
-			"today": {
+			"datestart": {
 				"type": "String"
 			}
 		},
