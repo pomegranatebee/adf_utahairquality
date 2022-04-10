@@ -143,19 +143,14 @@
 								"dataflow": {
 									"referenceName": "aqsjsontocsv",
 									"type": "DataFlowReference",
+									"parameters": {
+										"year": {
+											"value": "'@{substring(string(variables('datestart')),0,4)}'",
+											"type": "Expression"
+										}
+									},
 									"datasetParameters": {
 										"aqsjson": {
-											"pollutants": "@item().pollutant_id",
-											"datestart": {
-												"value": "@variables('datestart')",
-												"type": "Expression"
-											},
-											"dateend": {
-												"value": "@variables('dateend')",
-												"type": "Expression"
-											}
-										},
-										"sinktoaqsclean": {
 											"pollutants": "@item().pollutant_id",
 											"datestart": {
 												"value": "@variables('datestart')",
