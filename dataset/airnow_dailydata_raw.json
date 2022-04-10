@@ -1,0 +1,34 @@
+{
+	"name": "airnow_dailydata_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "utahaq_blob_output",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"year": {
+				"type": "string"
+			},
+			"date": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@concat(dataset().date,'.dat')",
+					"type": "Expression"
+				},
+				"folderPath": "dailydata",
+				"container": "airnowraw"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
