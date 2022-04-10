@@ -31,7 +31,7 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     year as string",
+				"     date as string",
 				"}",
 				"source(output(",
 				"          date as string,",
@@ -69,7 +69,7 @@
 				"     validateSchema: false,",
 				"     format: 'delimited',",
 				"     container: 'airnowclean',",
-				"     folderPath: ($year),",
+				"     folderPath: ($date),",
 				"     truncate: true,",
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
