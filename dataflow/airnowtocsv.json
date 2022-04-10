@@ -1,0 +1,60 @@
+{
+	"name": "airnowtocsv",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "airnow_dailydata_raw",
+						"type": "DatasetReference"
+					},
+					"name": "AirNowRaw"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "RemoveColumns"
+				},
+				{
+					"name": "FilterForUnitedStates"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          date as string,",
+				"          site_id_short as string,",
+				"          site_name as string,",
+				"          parameter as string,",
+				"          uom as string,",
+				"          pollutant_result as double,",
+				"          averaging_period as short,",
+				"          agency as string,",
+				"          pollutant_aqi as short,",
+				"          aqi_category as short,",
+				"          latitude as double,",
+				"          longitude as double,",
+				"          site_id_long as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> AirNowRaw",
+				"AirNowRaw select(mapColumn(",
+				"          date,",
+				"          site_id_long,",
+				"          parameter,",
+				"          uom,",
+				"          pollutant_result,",
+				"          pollutant_aqi,",
+				"          aqi_category,",
+				"          latitude,",
+				"          longitude",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RemoveColumns",
+				"RemoveColumns filter(startsWith(site_id_long,'840')) ~> FilterForUnitedStates"
+			]
+		}
+	}
+}
