@@ -68,13 +68,13 @@
 				"FilterForUnitedStates sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'delimited',",
-				"     container: 'aqsclean',",
+				"     container: 'airnowclean',",
 				"     folderPath: ($year),",
 				"     truncate: true,",
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
 				"     quoteChar: '\\\"',",
-				"     columnNamesAsHeader: false,",
+				"     columnNamesAsHeader: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> AirNowClean"
 			]
