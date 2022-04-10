@@ -1,0 +1,12 @@
+{
+	"name": "airnow_dailydata",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
