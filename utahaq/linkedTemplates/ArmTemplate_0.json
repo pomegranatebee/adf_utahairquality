@@ -518,11 +518,11 @@
 				"variables": {
 					"datestart": {
 						"type": "String",
-						"defaultValue": "20211201"
+						"defaultValue": "20201201"
 					},
 					"dateend": {
 						"type": "String",
-						"defaultValue": "20211231"
+						"defaultValue": "20201231"
 					}
 				},
 				"annotations": [],
