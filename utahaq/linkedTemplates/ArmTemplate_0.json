@@ -257,9 +257,9 @@
 					],
 					"sinks": [
 						{
-							"dataset": {
-								"referenceName": "aqs_dailydata_clean",
-								"type": "DatasetReference"
+							"linkedService": {
+								"referenceName": "utahaq_blob_output",
+								"type": "LinkedServiceReference"
 							},
 							"name": "sinktoaqsclean"
 						}
@@ -270,6 +270,9 @@
 						}
 					],
 					"scriptLines": [
+						"parameters{",
+						"     year as string",
+						"}",
 						"source(output(",
 						"          Data as (aqi as short, arithmetic_mean as double, cbsa as string, cbsa_code as integer, city as string, county as string, county_code as short, date_local as date, date_of_last_change as date, datum as string, event_type as string, first_max_hour as short, first_max_value as double, latitude as double, local_site_name as string, longitude as double, method as string, method_code as short, observation_count as short, observation_percent as double, parameter as string, parameter_code as integer, poc as short, pollutant_standard as string, sample_duration as string, sample_duration_code as string, site_address as string, site_number as short, state as string, state_code as short, units_of_measure as string, validity_indicator as boolean)[],",
 						"          Header as (request_time as string, rows as short, status as string, url as string)[]",
@@ -277,7 +280,11 @@
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine') ~> aqsjson",
+						"     documentForm: 'documentPerLine',",
+						"     dateFormats: ['yyyy-MM-dd'],",
+						"     timestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss'],",
+						"     preferredIntegralType: 'integer',",
+						"     preferredFractionalType: 'decimal') ~> aqsjson",
 						"aqsjson foldDown(unroll(Data),",
 						"     mapColumn(",
 						"          date = Data.date_local,",
@@ -289,6 +296,14 @@
 						"     skipDuplicateMapOutputs: false) ~> flattenjson",
 						"flattenjson sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'aqsclean',",
+						"     folderPath: ($year),",
+						"     truncate: true,",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: false,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
 					]
@@ -296,7 +311,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
-				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_clean')]"
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
 			]
 		},
 		{
@@ -447,7 +462,12 @@
 										"dataflow": {
 											"referenceName": "aqsjsontocsv",
 											"type": "DataFlowReference",
-											"parameters": {},
+											"parameters": {
+												"year": {
+													"value": "'@{substring(string(variables('datestart')),0,4)}'",
+													"type": "Expression"
+												}
+											},
 											"datasetParameters": {
 												"aqsjson": {
 													"pollutants": "@item().pollutant_id",
@@ -460,17 +480,7 @@
 														"type": "Expression"
 													}
 												},
-												"sinktoaqsclean": {
-													"pollutants": "@item().pollutant_id",
-													"datestart": {
-														"value": "@variables('datestart')",
-														"type": "Expression"
-													},
-													"dateend": {
-														"value": "@variables('dateend')",
-														"type": "Expression"
-													}
-												}
+												"sinktoaqsclean": {}
 											},
 											"linkedServiceParameters": {}
 										},
