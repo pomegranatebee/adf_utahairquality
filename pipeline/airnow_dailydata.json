@@ -248,6 +248,10 @@
 		"variables": {
 			"datestart": {
 				"type": "String"
+			},
+			"daterange": {
+				"type": "Array",
+				"defaultValue": []
 			}
 		},
 		"annotations": []
