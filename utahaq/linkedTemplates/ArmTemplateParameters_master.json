@@ -8,6 +8,9 @@
 		"utahaq_blob_output_connectionString": {
 			"value": ""
 		},
+		"airnow_dailydata_properties_typeProperties_url": {
+			"value": "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/"
+		},
 		"aqs_test_properties_typeProperties_url": {
 			"value": "https://aqs.epa.gov/data/api/dailyData/byState?email=test@aqs.api&key=test&param=45201&bdate=19950515&edate=19950515&state=37"
 		},

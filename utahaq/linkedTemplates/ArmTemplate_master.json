@@ -11,6 +11,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'utahaq_blob_output'"
 		},
+		"airnow_dailydata_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/"
+		},
 		"aqs_test_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/byState?email=test@aqs.api&key=test&param=45201&bdate=19950515&edate=19950515&state=37"
@@ -48,6 +52,9 @@
 					},
 					"utahaq_blob_output_connectionString": {
 						"value": "[parameters('utahaq_blob_output_connectionString')]"
+					},
+					"airnow_dailydata_properties_typeProperties_url": {
+						"value": "[parameters('airnow_dailydata_properties_typeProperties_url')]"
 					},
 					"aqs_test_properties_typeProperties_url": {
 						"value": "[parameters('aqs_test_properties_typeProperties_url')]"
