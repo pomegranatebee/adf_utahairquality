@@ -23,6 +23,14 @@
 			"type": "string",
 			"defaultValue": "https://aqs.epa.gov/data/api/dailyData/"
 		},
+		"airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget": {
+			"type": "int",
+			"defaultValue": 3
+		},
+		"airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection": {
+			"type": "string",
+			"defaultValue": "-"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -61,6 +69,12 @@
 					},
 					"epa_aqs_dailydata_properties_typeProperties_url": {
 						"value": "[parameters('epa_aqs_dailydata_properties_typeProperties_url')]"
+					},
+					"airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget": {
+						"value": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget')]"
+					},
+					"airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection": {
+						"value": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection')]"
 					}
 				}
 			},

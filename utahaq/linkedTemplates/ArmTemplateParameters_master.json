@@ -17,6 +17,12 @@
 		"epa_aqs_dailydata_properties_typeProperties_url": {
 			"value": "https://aqs.epa.gov/data/api/dailyData/"
 		},
+		"airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget": {
+			"value": 3
+		},
+		"airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection": {
+			"value": "-"
+		},
 		"containerUri": {
 			"value": ""
 		},
