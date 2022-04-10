@@ -5,7 +5,14 @@
 			{
 				"name": "Copy data1",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Current date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "7.00:00:00",
 					"retry": 0,
@@ -196,8 +203,14 @@
 						"referenceName": "airnow_dailydata_input",
 						"type": "DatasetReference",
 						"parameters": {
-							"year": "2022",
-							"date": "20220331"
+							"year": {
+								"value": "@substring(variables('today'),0,4)",
+								"type": "Expression"
+							},
+							"date": {
+								"value": "@variables('today')",
+								"type": "Expression"
+							}
 						}
 					}
 				],
@@ -211,8 +224,31 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Current date",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "today",
+					"value": {
+						"value": "@formatDateTime(convertFromUtc(utcnow(), 'Mountain Time'),'yyyyddMM')",
+						"type": "Expression"
+					}
+				}
 			}
 		],
+		"parameters": {
+			"daystoget": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"today": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }
