@@ -5,27 +5,11 @@
 			"referenceName": "utahaq_blob_output",
 			"type": "LinkedServiceReference"
 		},
-		"parameters": {
-			"year": {
-				"type": "string"
-			},
-			"date": {
-				"type": "string"
-			}
-		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": {
-					"value": "@concat(dataset().date,'.csv')",
-					"type": "Expression"
-				},
-				"folderPath": {
-					"value": "@dataset().year",
-					"type": "Expression"
-				},
 				"container": "airnowclean"
 			},
 			"columnDelimiter": ",",
