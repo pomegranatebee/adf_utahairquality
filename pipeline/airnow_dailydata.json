@@ -237,6 +237,12 @@
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "daterange",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": []
 			}
 		],
 		"parameters": {
@@ -252,6 +258,10 @@
 			"daterange": {
 				"type": "Array",
 				"defaultValue": []
+			},
+			"timedirection": {
+				"type": "String",
+				"defaultValue": "-"
 			}
 		},
 		"annotations": []
