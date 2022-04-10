@@ -1,0 +1,29 @@
+{
+	"name": "airnow_daily_refresh",
+	"properties": {
+		"description": "Refresh against AirNow file products to get updated air quality data.",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "airnow_dailydata",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"daystoget": 3,
+					"timedirection": "-"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 6,
+				"startTime": "2022-04-11T01:00:00",
+				"timeZone": "Mountain Standard Time"
+			}
+		}
+	}
+}
