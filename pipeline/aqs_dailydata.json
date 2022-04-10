@@ -147,6 +147,10 @@
 										"year": {
 											"value": "'@{substring(string(variables('datestart')),0,4)}'",
 											"type": "Expression"
+										},
+										"pollutant": {
+											"value": "'@{item().pollutant_id}'",
+											"type": "Expression"
 										}
 									},
 									"datasetParameters": {
