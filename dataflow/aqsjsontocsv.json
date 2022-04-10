@@ -64,7 +64,7 @@
 				"     validateSchema: false,",
 				"     format: 'delimited',",
 				"     container: 'aqsclean',",
-				"     folderPath: (concat($year,'_',$pollutant)),",
+				"     folderPath: (concat($pollutant,'_',$year)),",
 				"     truncate: true,",
 				"     columnDelimiter: ',',",
 				"     escapeChar: '\\\\',",
