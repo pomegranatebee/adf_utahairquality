@@ -501,8 +501,8 @@
 									"referenceName": "airnow_dailydata_raw",
 									"type": "DatasetReference",
 									"parameters": {
-										"year": "@substring(formatDateTime(variables('datestart'),'yyyyMMdd'),0,4)",
-										"date": "@formatDateTime(variables('datestart'),'yyyyMMdd')"
+										"year": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
+										"date": "@formatDateTime(item(),'yyyyMMdd')"
 									}
 								}
 							]
