@@ -12,7 +12,15 @@
 					"name": "AirNowRaw"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "utahaq_blob_output",
+						"type": "LinkedServiceReference"
+					},
+					"name": "AirNowClean"
+				}
+			],
 			"transformations": [
 				{
 					"name": "RemoveColumns"
@@ -22,6 +30,9 @@
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     year as string",
+				"}",
 				"source(output(",
 				"          date as string,",
 				"          site_id_short as string,",
@@ -53,7 +64,19 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> RemoveColumns",
-				"RemoveColumns filter(startsWith(site_id_long,'840')) ~> FilterForUnitedStates"
+				"RemoveColumns filter(startsWith(site_id_long,'840')) ~> FilterForUnitedStates",
+				"FilterForUnitedStates sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delimited',",
+				"     container: 'aqsclean',",
+				"     folderPath: ($year),",
+				"     truncate: true,",
+				"     columnDelimiter: ',',",
+				"     escapeChar: '\\\\',",
+				"     quoteChar: '\\\"',",
+				"     columnNamesAsHeader: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> AirNowClean"
 			]
 		}
 	}
