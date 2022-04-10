@@ -1,5 +1,5 @@
 {
-	"name": "airnow_dailydata",
+	"name": "airnow_dailydata_backfill",
 	"properties": {
 		"activities": [
 			{
