@@ -249,6 +249,10 @@
 			"daystoget": {
 				"type": "string",
 				"defaultValue": "7"
+			},
+			"timedirection": {
+				"type": "string",
+				"defaultValue": "-"
 			}
 		},
 		"variables": {
@@ -258,10 +262,6 @@
 			"daterange": {
 				"type": "Array",
 				"defaultValue": []
-			},
-			"timedirection": {
-				"type": "String",
-				"defaultValue": "-"
 			}
 		},
 		"annotations": []
