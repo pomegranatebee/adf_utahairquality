@@ -107,6 +107,33 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/airnow_dailydata_clean')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "utahaq_blob_output",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"container": "airnowclean"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/airnow_dailydata_input')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -335,234 +362,184 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/airnowtocsv')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "airnow_dailydata_raw",
+								"type": "DatasetReference"
+							},
+							"name": "AirNowRaw"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "utahaq_blob_output",
+								"type": "LinkedServiceReference"
+							},
+							"name": "AirNowClean"
+						}
+					],
+					"transformations": [
+						{
+							"name": "RemoveColumns"
+						},
+						{
+							"name": "FilterForUnitedStates"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     date as string",
+						"}",
+						"source(output(",
+						"          date as string,",
+						"          site_id_short as string,",
+						"          site_name as string,",
+						"          parameter as string,",
+						"          uom as string,",
+						"          pollutant_result as double,",
+						"          averaging_period as short,",
+						"          agency as string,",
+						"          pollutant_aqi as short,",
+						"          aqi_category as short,",
+						"          latitude as double,",
+						"          longitude as double,",
+						"          site_id_long as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> AirNowRaw",
+						"AirNowRaw select(mapColumn(",
+						"          date,",
+						"          site_id_long,",
+						"          parameter,",
+						"          uom,",
+						"          pollutant_result,",
+						"          pollutant_aqi,",
+						"          aqi_category,",
+						"          latitude,",
+						"          longitude",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> RemoveColumns",
+						"RemoveColumns filter(startsWith(site_id_long,'840')) ~> FilterForUnitedStates",
+						"FilterForUnitedStates sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'airnowclean',",
+						"     folderPath: ($date),",
+						"     truncate: true,",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> AirNowClean"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/airnow_dailydata_raw')]",
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/aqsjsontocsv')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "aqs_dailydata_raw",
+								"type": "DatasetReference"
+							},
+							"name": "aqsjson"
+						}
+					],
+					"sinks": [
+						{
+							"linkedService": {
+								"referenceName": "utahaq_blob_output",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sinktoaqsclean"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flattenjson"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     year as string,",
+						"     pollutant as string",
+						"}",
+						"source(output(",
+						"          Data as (aqi as short, arithmetic_mean as double, cbsa as string, cbsa_code as integer, city as string, county as string, county_code as short, date_local as date, date_of_last_change as date, datum as string, event_type as string, first_max_hour as short, first_max_value as double, latitude as double, local_site_name as string, longitude as double, method as string, method_code as short, observation_count as short, observation_percent as double, parameter as string, parameter_code as integer, poc as short, pollutant_standard as string, sample_duration as string, sample_duration_code as string, site_address as string, site_number as short, state as string, state_code as short, units_of_measure as string, validity_indicator as boolean)[],",
+						"          Header as (request_time as string, rows as short, status as string, url as string)[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'documentPerLine',",
+						"     dateFormats: ['yyyy-MM-dd'],",
+						"     timestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss'],",
+						"     preferredIntegralType: 'integer',",
+						"     preferredFractionalType: 'decimal') ~> aqsjson",
+						"aqsjson foldDown(unroll(Data),",
+						"     mapColumn(",
+						"          date = Data.date_local,",
+						"          county_id = Data.county_code,",
+						"          site_id = Data.site_number,",
+						"          parameter_id = Data.parameter_code,",
+						"          method_id = Data.method_code,",
+						"          observation_count = Data.observation_count,",
+						"          pollutant_standard = Data.pollutant_standard,",
+						"          pollutant_result = Data.arithmetic_mean,",
+						"          pollutant_aqi = Data.aqi,",
+						"          latitude = Data.latitude,",
+						"          longitude = Data.longitude,",
+						"          validity_indicator = Data.validity_indicator",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenjson",
+						"flattenjson sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'delimited',",
+						"     container: 'aqsclean',",
+						"     folderPath: (concat($pollutant,'_',$year)),",
+						"     truncate: true,",
+						"     columnDelimiter: ',',",
+						"     escapeChar: '\\\\',",
+						"     quoteChar: '\\\"',",
+						"     columnNamesAsHeader: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
+				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/airnow_dailydata_backfill')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
-					{
-						"name": "Copy raw DAT file to airnowraw",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "Current date",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "7.00:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "HttpReadSettings",
-									"requestMethod": "GET"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobStorageWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"mappings": [
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 1
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 1
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 2
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 2
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 3
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 3
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 4
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 4
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 5
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 5
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 6
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 6
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 7
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 7
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 8
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 8
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 9
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 9
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 10
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 10
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 11
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 11
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 12
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 12
-										}
-									},
-									{
-										"source": {
-											"type": "String",
-											"ordinal": 13
-										},
-										"sink": {
-											"type": "String",
-											"physicalType": "String",
-											"ordinal": 13
-										}
-									}
-								],
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "airnow_dailydata_input",
-								"type": "DatasetReference",
-								"parameters": {
-									"year": {
-										"value": "@substring(formatDateTime(variables('datestart'),'yyyyMMdd'),0,4)",
-										"type": "Expression"
-									},
-									"date": {
-										"value": "@formatDateTime(variables('datestart'),'yyyyMMdd')",
-										"type": "Expression"
-									}
-								}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "airnow_dailydata_raw",
-								"type": "DatasetReference",
-								"parameters": {
-									"year": "@substring(formatDateTime(variables('datestart'),'yyyyMMdd'),0,4)",
-									"date": "@formatDateTime(variables('datestart'),'yyyyMMdd')"
-								}
-							}
-						]
-					},
 					{
 						"name": "Current date",
 						"type": "SetVariable",
@@ -630,7 +607,7 @@
 							"isSequential": true,
 							"activities": [
 								{
-									"name": "Copy raw DAT file to airnowraw_copy1",
+									"name": "Copy raw DAT file to airnowraw",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -844,6 +821,51 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Transform DAT file and copy to airnowclean",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [
+										{
+											"activity": "Copy raw DAT file to airnowraw",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "airnowtocsv",
+											"type": "DataFlowReference",
+											"parameters": {
+												"date": {
+													"value": "'@{formatDateTime(item(),'yyyyMMdd')}'",
+													"type": "Expression"
+												}
+											},
+											"datasetParameters": {
+												"AirNowRaw": {
+													"year": "@substring(formatDateTime(item(),'yyyyMMdd'),0,4)",
+													"date": "@formatDateTime(item(),'yyyyMMdd')"
+												},
+												"AirNowClean": {}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
 								}
 							]
 						}
@@ -876,91 +898,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/airnow_dailydata_input')]",
-				"[concat(variables('factoryId'), '/datasets/airnow_dailydata_raw')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/aqsjsontocsv')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "aqs_dailydata_raw",
-								"type": "DatasetReference"
-							},
-							"name": "aqsjson"
-						}
-					],
-					"sinks": [
-						{
-							"linkedService": {
-								"referenceName": "utahaq_blob_output",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sinktoaqsclean"
-						}
-					],
-					"transformations": [
-						{
-							"name": "flattenjson"
-						}
-					],
-					"scriptLines": [
-						"parameters{",
-						"     year as string,",
-						"     pollutant as string",
-						"}",
-						"source(output(",
-						"          Data as (aqi as short, arithmetic_mean as double, cbsa as string, cbsa_code as integer, city as string, county as string, county_code as short, date_local as date, date_of_last_change as date, datum as string, event_type as string, first_max_hour as short, first_max_value as double, latitude as double, local_site_name as string, longitude as double, method as string, method_code as short, observation_count as short, observation_percent as double, parameter as string, parameter_code as integer, poc as short, pollutant_standard as string, sample_duration as string, sample_duration_code as string, site_address as string, site_number as short, state as string, state_code as short, units_of_measure as string, validity_indicator as boolean)[],",
-						"          Header as (request_time as string, rows as short, status as string, url as string)[]",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     documentForm: 'documentPerLine',",
-						"     dateFormats: ['yyyy-MM-dd'],",
-						"     timestampFormats: ['yyyy-MM-dd\\'T\\'HH:mm:ss'],",
-						"     preferredIntegralType: 'integer',",
-						"     preferredFractionalType: 'decimal') ~> aqsjson",
-						"aqsjson foldDown(unroll(Data),",
-						"     mapColumn(",
-						"          date = Data.date_local,",
-						"          county_id = Data.county_code,",
-						"          site_id = Data.site_number,",
-						"          parameter_id = Data.parameter_code,",
-						"          method_id = Data.method_code,",
-						"          observation_count = Data.observation_count,",
-						"          pollutant_standard = Data.pollutant_standard,",
-						"          pollutant_result = Data.arithmetic_mean,",
-						"          pollutant_aqi = Data.aqi,",
-						"          latitude = Data.latitude,",
-						"          longitude = Data.longitude,",
-						"          validity_indicator = Data.validity_indicator",
-						"     ),",
-						"     skipDuplicateMapInputs: false,",
-						"     skipDuplicateMapOutputs: false) ~> flattenjson",
-						"flattenjson sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'delimited',",
-						"     container: 'aqsclean',",
-						"     folderPath: (concat($pollutant,'_',$year)),",
-						"     truncate: true,",
-						"     columnDelimiter: ',',",
-						"     escapeChar: '\\\\',",
-						"     quoteChar: '\\\"',",
-						"     columnNamesAsHeader: true,",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> sinktoaqsclean"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
-				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
+				"[concat(variables('factoryId'), '/datasets/airnow_dailydata_raw')]",
+				"[concat(variables('factoryId'), '/dataflows/airnowtocsv')]"
 			]
 		},
 		{
