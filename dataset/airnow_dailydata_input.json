@@ -1,0 +1,32 @@
+{
+	"name": "airnow_dailydata_input",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "airnow_dailydata",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"year": {
+				"type": "string"
+			},
+			"date": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": {
+					"value": "@concat('https://s3-us-west-1.amazonaws.com//files.airnowtech.org/airnow/',dataset().year,'/',dataset().date,'/daily_data_v2.dat')",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": "|",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
