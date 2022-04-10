@@ -241,7 +241,8 @@
 		],
 		"parameters": {
 			"daystoget": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "0"
 			}
 		},
 		"variables": {
