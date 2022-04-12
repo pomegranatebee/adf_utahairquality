@@ -931,6 +931,40 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/airnow_daily_refresh')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Refresh against AirNow file products to get updated air quality data.",
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "airnow_dailydata",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"daystoget": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget')]",
+							"timedirection": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Hour",
+						"interval": 24,
+						"startTime": "2022-04-11T04:00:00",
+						"timeZone": "Mountain Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/airnow_dailydata')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/HigherTTL')]",
 			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
 			"apiVersion": "2018-06-01",
@@ -1121,40 +1155,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/aqs_dailydata_raw')]",
 				"[concat(variables('factoryId'), '/linkedServices/utahaq_blob_output')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/airnow_daily_refresh')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"description": "Refresh against AirNow file products to get updated air quality data.",
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "airnow_dailydata",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"daystoget": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_daystoget')]",
-							"timedirection": "[parameters('airnow_daily_refresh_properties_airnow_dailydata_parameters_timedirection')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Hour",
-						"interval": 6,
-						"startTime": "2022-04-11T01:00:00",
-						"timeZone": "Mountain Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/airnow_dailydata')]"
 			]
 		}
 	]

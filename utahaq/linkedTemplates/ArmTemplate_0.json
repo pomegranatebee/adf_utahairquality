@@ -1147,8 +1147,8 @@
 				"typeProperties": {
 					"recurrence": {
 						"frequency": "Hour",
-						"interval": 6,
-						"startTime": "2022-04-11T01:00:00",
+						"interval": 24,
+						"startTime": "2022-04-11T04:00:00",
 						"timeZone": "Mountain Standard Time"
 					}
 				}
